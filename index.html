@@ -42,7 +42,6 @@
     padding:56px 24px 80px;
   }
 
-  /* ---------- Pillars signature graphic ---------- */
   .pillars{
     display:flex;
     justify-content:center;
@@ -90,11 +89,9 @@
     line-height:1.55;
   }
 
-  /* ---------- Views ---------- */
   .view{display:none;}
   .view.active{display:block;}
 
-  /* Landing choice cards */
   .choices{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -133,7 +130,6 @@
     margin:0;
   }
 
-  /* Back nav */
   .back-row{
     display:flex;
     align-items:center;
@@ -152,7 +148,6 @@
   }
   .back-btn:hover{color:var(--navy);}
 
-  /* Form */
   .field{margin-bottom:26px;}
   .field label{
     display:block;
@@ -243,7 +238,6 @@
   .status-msg.ok{background:#eef3ea;color:#3d5c30;border:1px solid #cfe0c7;}
   .status-msg.err{background:#f6e9e7;color:var(--danger);border:1px solid #e6c9c4;}
 
-  /* List view */
   .summary-bar{
     display:flex;
     gap:24px;
@@ -324,7 +318,6 @@
     color:var(--slate-light);
   }
 
-  /* ---------- Captcha gate ---------- */
   #captchaGate{
     position:fixed;
     inset:0;
@@ -418,7 +411,6 @@
 
 <div class="shell" id="mainShell">
 
-  <!-- ================= LANDING ================= -->
   <div class="view active" id="view-landing">
     <div class="pillars" aria-hidden="true">
       <svg width="14" height="40"><rect x="0" y="0" width="14" height="40" fill="#152238" opacity="0.85"/></svg>
@@ -451,7 +443,6 @@
     <footer class="note">Bu sayfadaki değerlendirmeler herkese açık olarak listelenir.</footer>
   </div>
 
-  <!-- ================= FORM ================= -->
   <div class="view" id="view-form">
     <div class="back-row">
       <button class="back-btn" onclick="showView('landing')">← Ana sayfa</button>
@@ -503,7 +494,6 @@
     </form>
   </div>
 
-  <!-- ================= LIST ================= -->
   <div class="view" id="view-list">
     <div class="back-row">
       <button class="back-btn" onclick="showView('landing')">← Ana sayfa</button>
@@ -524,16 +514,14 @@
 
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
-/* ---------------- Captcha gate ---------------- */
 let captchaAnswer = "";
 
 function generateCaptcha(){
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // I,O,0,1 çıkarıldı - karışmasın
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
   for(let i=0;i<5;i++) code += chars[Math.floor(Math.random()*chars.length)];
   captchaAnswer = code;
@@ -542,13 +530,11 @@ function generateCaptcha(){
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  // background
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // noise lines
   for(let i=0;i<6;i++){
-    ctx.strokeStyle = rgba(75,90,114,${0.15 + Math.random()*0.25});
+    ctx.strokeStyle = `rgba(75,90,114,${0.15 + Math.random()*0.25})`;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(Math.random()*canvas.width, Math.random()*canvas.height);
@@ -556,15 +542,13 @@ function generateCaptcha(){
     ctx.stroke();
   }
 
-  // noise dots
   for(let i=0;i<40;i++){
-    ctx.fillStyle = rgba(75,90,114,${0.1 + Math.random()*0.2});
+    ctx.fillStyle = `rgba(75,90,114,${0.1 + Math.random()*0.2})`;
     ctx.beginPath();
     ctx.arc(Math.random()*canvas.width, Math.random()*canvas.height, 1.2, 0, Math.PI*2);
     ctx.fill();
   }
 
-  // characters, each with random rotation/offset
   const spacing = canvas.width / (code.length + 1);
   for(let i=0;i<code.length;i++){
     ctx.save();
@@ -600,14 +584,18 @@ document.getElementById("captchaInput").addEventListener("keydown", function(e){
 });
 
 generateCaptcha();
+
+if (document.fonts && document.fonts.load) {
+  document.fonts.load("bold 30px 'IBM Plex Mono'").then(function(){
+    return document.fonts.ready;
+  }).then(function(){
+    generateCaptcha();
+  }).catch(function(){
+  });
+}
 </script>
 
 <script>
-/* =========================================================
-   FIREBASE CONFIG
-   Kendi Firebase projenizin bilgilerini buraya yapıştırın.
-   Firebase Console > Project settings > General > Your apps
-   ========================================================= */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -628,7 +616,6 @@ try{
   console.error("Firebase başlatılamadı. firebaseConfig bilgilerinizi ve internet bağlantısını kontrol edin.", e);
 }
 
-/* ---------------- View switching ---------------- */
 function showView(name){
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById("view-" + name).classList.add("active");
@@ -636,13 +623,11 @@ function showView(name){
   if(name === "list") loadReviews();
 }
 
-/* ---------------- Relation "other" toggle ---------------- */
 document.getElementById("f-relation").addEventListener("change", function(){
   document.getElementById("f-relation-other").style.display =
     this.value === "Diğer" ? "block" : "none";
 });
 
-/* ---------------- Star rating widgets ---------------- */
 const ratings = { overall:0 };
 
 document.querySelectorAll(".stars").forEach(container => {
@@ -667,7 +652,6 @@ function renderStars(container, value){
   });
 }
 
-/* ---------------- Word count limiter ---------------- */
 const commentBox = document.getElementById("f-comment");
 const wordCountEl = document.getElementById("wordCount");
 
@@ -681,7 +665,6 @@ commentBox.addEventListener("input", () => {
   wordCountEl.classList.toggle("over", words.length >= 500);
 });
 
-/* ---------------- Submit ---------------- */
 function submitReview(){
   const name = document.getElementById("f-name").value.trim();
   let relation = document.getElementById("f-relation").value;
@@ -740,7 +723,6 @@ function submitReview(){
   });
 }
 
-/* ---------------- Load & render reviews ---------------- */
 let reviewsLoaded = false;
 
 function loadReviews(){
@@ -758,7 +740,7 @@ function loadReviews(){
     snapshot.forEach(child => {
       items.push({ id: child.key, ...child.val() });
     });
-    items.reverse(); // newest first
+    items.reverse();
     renderReviewList(items);
   }).catch(err => {
     listEl.innerHTML = '<div class="empty-state"><div class="display">Yorumlar yüklenemedi</div><p>Firebase bağlantısını kontrol edin.</p></div>';
