@@ -311,6 +311,40 @@
     font-size:13px;
   }
 
+  /* ---------- Report / PDF button ---------- */
+  .report-row{
+    display:flex;
+    justify-content:center;
+    margin-bottom:28px;
+  }
+  .report-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--paper-2);
+    border:1px solid var(--navy);
+    color:var(--navy);
+    padding:12px 20px;
+    border-radius:2px;
+    font-size:13.5px;
+    font-weight:600;
+    letter-spacing:.01em;
+  }
+  .report-btn:hover{background:var(--navy);color:#fff;}
+  .report-icon{font-size:14px;}
+
+  /* ---------- PDF password gate ---------- */
+  .pdf-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(21,34,56,0.55);
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+
   footer.note{
     text-align:center;
     margin-top:56px;
@@ -509,13 +543,40 @@
       <div class="summary-item"><div class="val" id="totalCount">0</div><div class="lbl">Toplam Yorum</div></div>
     </div>
 
+    <div class="report-row" id="reportRow" style="display:none;">
+      <button class="report-btn" onclick="openPdfGate()">
+        <span class="report-icon">⇩</span> Tüm Yorumları PDF Olarak İndir
+      </button>
+    </div>
+
     <div id="reviewList"><div class="loading">Yükleniyor…</div></div>
   </div>
 
 </div>
 
+<!-- ============ PDF Şifre Kapısı ============ -->
+<div id="pdfPasswordGate" style="display:none;">
+  <div class="pdf-overlay" onclick="closePdfGate(event)">
+    <div class="captcha-box" onclick="event.stopPropagation()">
+      <div class="eyebrow">Rapor Erişimi</div>
+      <h2 class="display">PDF raporu için şifre girin</h2>
+      <div class="captcha-row">
+        <input type="password" id="pdfPasswordInput" placeholder="Şifre" maxlength="10" autocomplete="off">
+      </div>
+      <button class="submit-btn" id="pdfConfirmBtn" onclick="checkPdfPassword()">Onayla ve İndir</button>
+      <button class="back-btn" style="margin-top:10px;justify-content:center;width:100%;" onclick="closePdfGate()">Vazgeç</button>
+      <div class="captcha-error" id="pdfPasswordError"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PDF'e dönüştürülecek gizli rapor içeriği -->
+<div id="pdfReportContent" style="position:fixed; left:-9999px; top:0; width:720px; background:#ffffff; padding:36px; font-family:'Inter',sans-serif; color:#152238;"></div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
 let captchaAnswer = "";
@@ -609,10 +670,22 @@ const firebaseConfig = {
 
 let dbReady = false;
 let reviewsRef = null;
+let authReadyPromise = null;
+
 try{
   firebase.initializeApp(firebaseConfig);
   reviewsRef = firebase.database().ref("reviews");
-  dbReady = true;
+
+  /* Realtime Database kuralları "auth != null" olduğu için, kullanıcıya
+     fark ettirmeden arka planda anonim oturum açıyoruz. Oturum açılana
+     kadar dbReady false kalır; okuma/yazma denemeleri bekletilir. */
+  authReadyPromise = firebase.auth().signInAnonymously()
+    .then(() => {
+      dbReady = true;
+    })
+    .catch(err => {
+      console.error("Anonim giriş başarısız oldu. Firebase Console > Authentication > Sign-in method bölümünden 'Anonymous' sağlayıcısının etkin olduğundan emin olun.", err);
+    });
 }catch(e){
   console.error("Firebase başlatılamadı. firebaseConfig bilgilerinizi ve internet bağlantısını kontrol edin.", e);
 }
@@ -688,40 +761,45 @@ function submitReview(){
     statusEl.className = "status-msg show err";
     return;
   }
-  if(!dbReady){
-    statusEl.textContent = "Veritabanı bağlantısı kurulamadı. firebaseConfig bilgilerinin girildiğinden emin olun.";
-    statusEl.className = "status-msg show err";
-    return;
-  }
-
   btn.disabled = true;
   btn.textContent = "Gönderiliyor…";
 
-  reviewsRef.push({
-    name: name,
-    relation: relation,
-    ratings: { ...ratings },
-    comment: comment,
-    timestamp: firebase.database.ServerValue.TIMESTAMP
-  }).then(() => {
-    statusEl.textContent = "Yorumunuz için teşekkürler. Başarıyla gönderildi.";
-    statusEl.className = "status-msg show ok";
-    document.getElementById("reviewForm").reset();
-    document.getElementById("f-relation-other").style.display = "none";
-    ratings.academic = ratings.personal = ratings.leadership = 0;
-    document.querySelectorAll(".stars").forEach(c => renderStars(c, 0));
-    ratings.overall = 0;
-    wordCountEl.textContent = "0 / 500 kelime";
-    wordCountEl.classList.remove("over");
-    btn.disabled = false;
-    btn.textContent = "Yorumu Gönder";
-  }).catch(err => {
-    statusEl.textContent = "Bir hata oluştu, lütfen tekrar deneyin.";
-    statusEl.className = "status-msg show err";
-    btn.disabled = false;
-    btn.textContent = "Yorumu Gönder";
-    console.error(err);
-  });
+  // Anonim oturum henüz açılmadıysa (Rules "auth != null" istiyor), açılana kadar bekle.
+  const waitForAuth = dbReady ? Promise.resolve() : (authReadyPromise || Promise.reject(new Error("Firebase hazır değil")));
+
+  waitForAuth
+    .then(() => {
+      if(!dbReady){
+        throw new Error("Oturum açılamadı");
+      }
+      return reviewsRef.push({
+        name: name,
+        relation: relation,
+        ratings: { ...ratings },
+        comment: comment,
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      });
+    })
+    .then(() => {
+      statusEl.textContent = "Yorumunuz için teşekkürler. Başarıyla gönderildi.";
+      statusEl.className = "status-msg show ok";
+      document.getElementById("reviewForm").reset();
+      document.getElementById("f-relation-other").style.display = "none";
+      ratings.academic = ratings.personal = ratings.leadership = 0;
+      document.querySelectorAll(".stars").forEach(c => renderStars(c, 0));
+      ratings.overall = 0;
+      wordCountEl.textContent = "0 / 500 kelime";
+      wordCountEl.classList.remove("over");
+      btn.disabled = false;
+      btn.textContent = "Yorumu Gönder";
+    })
+    .catch(err => {
+      statusEl.textContent = "Bir hata oluştu, lütfen tekrar deneyin.";
+      statusEl.className = "status-msg show err";
+      btn.disabled = false;
+      btn.textContent = "Yorumu Gönder";
+      console.error(err);
+    });
 }
 
 let reviewsLoaded = false;
@@ -729,14 +807,21 @@ let reviewsLoaded = false;
 function loadReviews(){
   const listEl = document.getElementById("reviewList");
 
-  if(!dbReady){
+  if(!reviewsRef){
     listEl.innerHTML = '<div class="empty-state"><div class="display">Veritabanı bağlı değil</div><p>firebaseConfig bilgilerini girip sayfayı tekrar yükleyin.</p></div>';
     return;
   }
 
   listEl.innerHTML = '<div class="loading">Yükleniyor…</div>';
 
-  reviewsRef.orderByChild("timestamp").once("value").then(snapshot => {
+  const waitForAuth = dbReady ? Promise.resolve() : (authReadyPromise || Promise.reject(new Error("Firebase hazır değil")));
+
+  waitForAuth.then(() => {
+    if(!dbReady){
+      throw new Error("Oturum açılamadı");
+    }
+    return reviewsRef.orderByChild("timestamp").once("value");
+  }).then(snapshot => {
     const items = [];
     snapshot.forEach(child => {
       items.push({ id: child.key, ...child.val() });
@@ -752,9 +837,13 @@ function loadReviews(){
 function renderReviewList(items){
   const listEl = document.getElementById("reviewList");
   const summaryBar = document.getElementById("summaryBar");
+  const reportRow = document.getElementById("reportRow");
+
+  currentReviews = items; // PDF raporu için sakla
 
   if(items.length === 0){
     summaryBar.style.display = "none";
+    reportRow.style.display = "none";
     listEl.innerHTML = '<div class="empty-state"><div class="display">Henüz yorum yok</div><p>İlk değerlendirmeyi siz bırakın.</p></div>';
     return;
   }
@@ -764,6 +853,7 @@ function renderReviewList(items){
   document.getElementById("avgOverall").textContent = (sum/items.length).toFixed(1);
   document.getElementById("totalCount").textContent = items.length;
   summaryBar.style.display = "flex";
+  reportRow.style.display = "flex";
 
   listEl.innerHTML = items.map(it => {
     const date = it.timestamp ? new Date(it.timestamp).toLocaleDateString("tr-TR", {year:"numeric",month:"long",day:"numeric"}) : "";
@@ -795,6 +885,116 @@ function escapeHtml(str){
   div.textContent = str || "";
   return div.innerHTML;
 }
+
+/* ================= PDF Rapor (şifre korumalı) ================= */
+const PDF_PASSWORD = "030714";
+let currentReviews = [];
+
+function openPdfGate(){
+  const gate = document.getElementById("pdfPasswordGate");
+  const input = document.getElementById("pdfPasswordInput");
+  const err = document.getElementById("pdfPasswordError");
+  err.textContent = "";
+  input.value = "";
+  gate.style.display = "block";
+  setTimeout(() => input.focus(), 50);
+}
+
+function closePdfGate(evt){
+  if(evt) evt.preventDefault();
+  document.getElementById("pdfPasswordGate").style.display = "none";
+}
+
+document.getElementById("pdfPasswordInput").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){ e.preventDefault(); checkPdfPassword(); }
+});
+
+function checkPdfPassword(){
+  const val = document.getElementById("pdfPasswordInput").value.trim();
+  const err = document.getElementById("pdfPasswordError");
+  const btn = document.getElementById("pdfConfirmBtn");
+
+  if(val !== PDF_PASSWORD){
+    err.textContent = "Şifre hatalı.";
+    document.getElementById("pdfPasswordInput").value = "";
+    document.getElementById("pdfPasswordInput").focus();
+    return;
+  }
+
+  err.textContent = "";
+  btn.disabled = true;
+  btn.textContent = "Rapor hazırlanıyor…";
+
+  generatePdfReport().then(() => {
+    btn.disabled = false;
+    btn.textContent = "Onayla ve İndir";
+    closePdfGate();
+  }).catch(e => {
+    console.error(e);
+    err.textContent = "Rapor oluşturulamadı, tekrar deneyin.";
+    btn.disabled = false;
+    btn.textContent = "Onayla ve İndir";
+  });
+}
+
+function generatePdfReport(){
+  const container = document.getElementById("pdfReportContent");
+  const today = new Date().toLocaleDateString("tr-TR", {year:"numeric", month:"long", day:"numeric"});
+
+  let avg = "–";
+  if(currentReviews.length){
+    const sum = currentReviews.reduce((a,it) => a + (it.ratings?.overall || 0), 0);
+    avg = (sum/currentReviews.length).toFixed(1);
+  }
+
+  const rowsHtml = currentReviews.map((it, idx) => {
+    const date = it.timestamp ? new Date(it.timestamp).toLocaleDateString("tr-TR", {year:"numeric",month:"long",day:"numeric"}) : "";
+    return `
+      <div style="padding:16px 0; border-bottom:1px solid #dcdfd9; page-break-inside:avoid;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+          <div>
+            <div style="font-weight:600; font-size:14px;">${idx+1}. ${escapeHtml(it.name)}</div>
+            <div style="font-size:12px; color:#4b5a72; margin-top:2px;">${escapeHtml(it.relation)}</div>
+          </div>
+          <div style="font-size:11px; color:#8794a6; white-space:nowrap;">${date}</div>
+        </div>
+        <div style="color:#b8862e; font-size:14px; margin-bottom:8px;">${starStr(it.ratings?.overall)}</div>
+        <div style="font-size:13px; line-height:1.6; color:#152238; white-space:pre-wrap;">${escapeHtml(it.comment)}</div>
+      </div>
+    `;
+  }).join("");
+
+  container.innerHTML = `
+    <div style="text-align:center; margin-bottom:28px; border-bottom:2px solid #152238; padding-bottom:20px;">
+      <div style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#b8862e; font-weight:600; margin-bottom:8px;">Değerlendirme Raporu</div>
+      <div style="font-size:24px; font-weight:600;">Barış Akça</div>
+      <div style="font-size:12px; color:#8794a6; margin-top:6px;">Rapor tarihi: ${today}</div>
+    </div>
+    <div style="display:flex; justify-content:center; gap:40px; margin-bottom:24px;">
+      <div style="text-align:center;">
+        <div style="font-size:22px; font-weight:600;">${avg}</div>
+        <div style="font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:#8794a6;">Ortalama Puan</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:22px; font-weight:600;">${currentReviews.length}</div>
+        <div style="font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:#8794a6;">Toplam Yorum</div>
+      </div>
+    </div>
+    ${rowsHtml}
+  `;
+
+  const opt = {
+    margin: [14, 12, 14, 12],
+    filename: `baris-akca-degerlendirme-raporu-${Date.now()}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'] }
+  };
+
+  return html2pdf().set(opt).from(container).save();
+}
+
 </script>
 </body>
 </html>
