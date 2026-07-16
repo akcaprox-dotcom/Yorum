@@ -18,6 +18,10 @@
     --gold:#b8862e;
     --gold-soft:#e4c88a;
     --danger:#a4443a;
+    --acc1:#b8862e;
+    --acc2:#3f7d6b;
+    --acc3:#5c6bc0;
+    --acc4:#b3543f;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
@@ -36,34 +40,50 @@
   ::selection{background:var(--gold-soft);}
 
   .shell{
-    display:none;
+    display:block;
     max-width:760px;
     margin:0 auto;
-    padding:56px 24px 80px;
+    padding:24px 24px 80px;
   }
 
-  .pillars{
+  .corner-nav{
     display:flex;
-    justify-content:center;
-    align-items:flex-end;
-    gap:28px;
-    margin:0 auto 28px;
-    height:64px;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    max-width:1100px;
+    margin:0 auto;
+    padding:20px 24px 0;
   }
-  .pillars svg{display:block;}
-  .pillar-label{
-    display:flex;
-    justify-content:center;
-    gap:0;
-    margin-bottom:40px;
+  .corner-btn{
+    display:inline-block;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.02em;
+    color:var(--navy);
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:10px 18px;
+    text-decoration:none;
+    transition:border-color .18s ease, transform .18s ease;
+    white-space:nowrap;
   }
-  .pillar-label span{
-    flex:1;
-    text-align:center;
-    font-size:11px;
-    letter-spacing:.12em;
-    text-transform:uppercase;
-    color:var(--slate);
+  .corner-btn:hover{transform:translateY(-1px);}
+  .corner-btn.glow-1{
+    border-color:var(--acc1);
+    box-shadow:0 0 8px 1px rgba(184,134,46,.55), 0 0 18px 3px rgba(184,134,46,.28);
+    animation:pulse-1 2.6s ease-in-out infinite;
+  }
+  .corner-btn.glow-2{
+    border-color:var(--acc3);
+    box-shadow:0 0 8px 1px rgba(92,107,192,.55), 0 0 18px 3px rgba(92,107,192,.28);
+    animation:pulse-3 2.6s ease-in-out infinite;
+    animation-delay:.3s;
+  }
+  @media (max-width:640px){
+    .corner-nav{flex-direction:column;align-items:stretch;text-align:center;}
+    .corner-btn{white-space:normal;}
   }
 
   header.top{text-align:center;margin-bottom:8px;}
@@ -108,8 +128,40 @@
     text-align:left;
     transition:border-color .18s ease, transform .18s ease;
   }
-  .choice-card:hover{border-color:var(--navy);transform:translateY(-2px);}
+  .choice-card:hover{transform:translateY(-2px);}
   .choice-card:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+  .choice-card.glow-1{
+    border-color:var(--acc2);
+    box-shadow:0 0 10px 1px rgba(63,125,107,.5), 0 0 22px 4px rgba(63,125,107,.25);
+    animation:pulse-2 2.6s ease-in-out infinite;
+  }
+  .choice-card.glow-2{
+    border-color:var(--acc4);
+    box-shadow:0 0 10px 1px rgba(179,84,63,.5), 0 0 22px 4px rgba(179,84,63,.25);
+    animation:pulse-4 2.6s ease-in-out infinite;
+    animation-delay:.3s;
+  }
+  .choice-card.glow-1:hover{box-shadow:0 0 14px 2px rgba(63,125,107,.7), 0 0 30px 6px rgba(63,125,107,.35);}
+  .choice-card.glow-2:hover{box-shadow:0 0 14px 2px rgba(179,84,63,.7), 0 0 30px 6px rgba(179,84,63,.35);}
+  .corner-btn.glow-1:hover{box-shadow:0 0 12px 2px rgba(184,134,46,.75), 0 0 26px 5px rgba(184,134,46,.35);}
+  .corner-btn.glow-2:hover{box-shadow:0 0 12px 2px rgba(92,107,192,.75), 0 0 26px 5px rgba(92,107,192,.35);}
+
+  @keyframes pulse-1{
+    0%,100%{box-shadow:0 0 8px 1px rgba(184,134,46,.55), 0 0 18px 3px rgba(184,134,46,.28);}
+    50%{box-shadow:0 0 12px 2px rgba(184,134,46,.8), 0 0 26px 5px rgba(184,134,46,.4);}
+  }
+  @keyframes pulse-2{
+    0%,100%{box-shadow:0 0 10px 1px rgba(63,125,107,.5), 0 0 22px 4px rgba(63,125,107,.25);}
+    50%{box-shadow:0 0 14px 2px rgba(63,125,107,.75), 0 0 30px 6px rgba(63,125,107,.38);}
+  }
+  @keyframes pulse-3{
+    0%,100%{box-shadow:0 0 8px 1px rgba(92,107,192,.55), 0 0 18px 3px rgba(92,107,192,.28);}
+    50%{box-shadow:0 0 12px 2px rgba(92,107,192,.8), 0 0 26px 5px rgba(92,107,192,.4);}
+  }
+  @keyframes pulse-4{
+    0%,100%{box-shadow:0 0 10px 1px rgba(179,84,63,.5), 0 0 22px 4px rgba(179,84,63,.25);}
+    50%{box-shadow:0 0 14px 2px rgba(179,84,63,.75), 0 0 30px 6px rgba(179,84,63,.38);}
+  }
   .choice-card .num{
     font-size:11px;
     color:var(--gold);
@@ -262,6 +314,49 @@
     margin-top:4px;
   }
 
+  .filter-bar{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .filter-bar input[type=text]{
+    flex:1;
+  }
+  .filter-bar select{
+    width:auto;
+    flex-shrink:0;
+    max-width:190px;
+  }
+  .filter-bar-dates{
+    align-items:flex-end;
+    margin-bottom:28px;
+  }
+  .date-field{
+    flex:1;
+  }
+  .date-field label{
+    display:block;
+    font-size:11.5px;
+    color:var(--slate-light);
+    margin-bottom:6px;
+  }
+  .date-field input[type=date]{
+    width:100%;
+  }
+  .filter-clear-btn{
+    flex-shrink:0;
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:12px 14px;
+    font-size:13px;
+  }
+  .filter-clear-btn:hover{border-color:var(--navy);}
+  @media (max-width:560px){
+    .filter-bar{flex-direction:column;}
+    .filter-bar select{max-width:none;}
+    .filter-bar-dates{flex-direction:column;align-items:stretch;}
+  }
+
   .review-card{
     background:var(--paper-2);
     border:1px solid var(--line);
@@ -323,11 +418,12 @@
     inset:0;
     background:var(--paper);
     z-index:999;
-    display:flex;
+    display:none;
     align-items:center;
     justify-content:center;
     padding:24px;
   }
+  #captchaGate.show{display:flex;}
   .captcha-box{
     background:var(--paper-2);
     border:1px solid var(--line);
@@ -395,8 +491,16 @@
 </head>
 <body>
 
+<div class="corner-nav" id="cornerNav">
+  <a class="corner-btn glow-1" href="https://www.akcaprox.com" target="_blank" rel="noopener">Stratejik Yönetim Danışmanlığı</a>
+  <a class="corner-btn glow-2" href="https://www.analizprox.com" target="_blank" rel="noopener">ProX Yedilisi "7" Analiz Uygulaması</a>
+</div>
+
 <div id="captchaGate">
   <div class="captcha-box">
+    <div class="back-row" style="margin-bottom:18px;">
+      <button class="back-btn" onclick="closeCaptchaGate()">← Ana sayfa</button>
+    </div>
     <div class="eyebrow">Güvenlik Doğrulaması</div>
     <h2 class="display">Devam etmeden önce doğrulayın</h2>
     <canvas id="captchaCanvas" width="220" height="70"></canvas>
@@ -412,15 +516,6 @@
 <div class="shell" id="mainShell">
 
   <div class="view active" id="view-landing">
-    <div class="pillars" aria-hidden="true">
-      <svg width="14" height="40"><rect x="0" y="0" width="14" height="40" fill="#152238" opacity="0.85"/></svg>
-      <svg width="14" height="56"><rect x="0" y="0" width="14" height="56" fill="#152238"/></svg>
-      <svg width="14" height="46"><rect x="0" y="0" width="14" height="46" fill="#152238" opacity="0.85"/></svg>
-    </div>
-    <div class="pillar-label">
-      <span>Akademik</span><span>Liderlik</span><span>Kişisel</span>
-    </div>
-
     <header class="top">
       <div class="eyebrow">Değerlendirme Sayfası</div>
       <h1 class="display">Barış Akça</h1>
@@ -428,12 +523,12 @@
     </header>
 
     <div class="choices">
-      <button class="choice-card" onclick="showView('list')">
+      <button class="choice-card glow-1" onclick="showView('list')">
         <span class="num">01</span>
         <h2>Yorumları İncele</h2>
         <p>Daha önce bırakılan tüm değerlendirmeleri ve puanları görüntüleyin.</p>
       </button>
-      <button class="choice-card" onclick="showView('form')">
+      <button class="choice-card glow-2" onclick="requestFormAccess()">
         <span class="num">02</span>
         <h2>Yorum Yap</h2>
         <p>Kendi değerlendirmenizi ve puanınızı paylaşın.</p>
@@ -509,6 +604,29 @@
       <div class="summary-item"><div class="val" id="totalCount">0</div><div class="lbl">Toplam Yorum</div></div>
     </div>
 
+    <div class="filter-bar" id="filterBar" style="display:none;">
+      <input type="text" id="filterSearch" placeholder="İsim, tanışma şekli veya yorum içinde ara...">
+      <select id="filterRating" style="display:none;">
+        <option value="0">Tüm puanlar</option>
+        <option value="5">5 yıldız</option>
+        <option value="4">4 yıldız ve üzeri</option>
+        <option value="3">3 yıldız ve üzeri</option>
+        <option value="2">2 yıldız ve üzeri</option>
+        <option value="1">1 yıldız ve üzeri</option>
+      </select>
+    </div>
+    <div class="filter-bar filter-bar-dates" id="filterBarDates" style="display:none;">
+      <div class="date-field">
+        <label for="filterDateFrom">Başlangıç</label>
+        <input type="date" id="filterDateFrom">
+      </div>
+      <div class="date-field">
+        <label for="filterDateTo">Bitiş</label>
+        <input type="date" id="filterDateTo">
+      </div>
+      <button type="button" class="back-btn filter-clear-btn" id="filterDateClear" onclick="clearDateFilter()">Temizle</button>
+    </div>
+
     <div id="reviewList"><div class="loading">Yükleniyor…</div></div>
   </div>
 
@@ -519,6 +637,7 @@
 
 <script>
 let captchaAnswer = "";
+let captchaVerified = false;
 
 function generateCaptcha(){
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -571,12 +690,25 @@ function generateCaptcha(){
 function verifyCaptcha(){
   const val = document.getElementById("captchaInput").value.trim().toUpperCase();
   if(val === captchaAnswer){
-    document.getElementById("captchaGate").style.display = "none";
-    document.getElementById("mainShell").style.display = "block";
+    captchaVerified = true;
+    document.getElementById("captchaGate").classList.remove("show");
+    showView("form");
   } else {
     document.getElementById("captchaError").textContent = "Kod hatalı, tekrar deneyin.";
     generateCaptcha();
   }
+}
+
+function requestFormAccess(){
+  if(captchaVerified){
+    showView("form");
+    return;
+  }
+  document.getElementById("captchaGate").classList.add("show");
+}
+
+function closeCaptchaGate(){
+  document.getElementById("captchaGate").classList.remove("show");
 }
 
 document.getElementById("captchaInput").addEventListener("keydown", function(e){
@@ -621,6 +753,7 @@ function showView(name){
   document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById("view-" + name).classList.add("active");
   window.scrollTo({top:0, behavior:"smooth"});
+  document.getElementById("cornerNav").style.display = (name === "landing") ? "flex" : "none";
   if(name === "list") loadReviews();
 }
 
@@ -725,15 +858,24 @@ function submitReview(){
 }
 
 let reviewsLoaded = false;
+let allReviews = [];
 
 function loadReviews(){
   const listEl = document.getElementById("reviewList");
+  const filterBar = document.getElementById("filterBar");
+  const filterBarDates = document.getElementById("filterBarDates");
+  const summaryBar = document.getElementById("summaryBar");
 
   if(!dbReady){
+    filterBar.style.display = "none";
+    filterBarDates.style.display = "none";
+    summaryBar.style.display = "none";
     listEl.innerHTML = '<div class="empty-state"><div class="display">Veritabanı bağlı değil</div><p>firebaseConfig bilgilerini girip sayfayı tekrar yükleyin.</p></div>';
     return;
   }
 
+  filterBar.style.display = "none";
+  filterBarDates.style.display = "none";
   listEl.innerHTML = '<div class="loading">Yükleniyor…</div>';
 
   reviewsRef.orderByChild("timestamp").once("value").then(snapshot => {
@@ -742,28 +884,74 @@ function loadReviews(){
       items.push({ id: child.key, ...child.val() });
     });
     items.reverse();
-    renderReviewList(items);
+    allReviews = items;
+
+    if(items.length === 0){
+      summaryBar.style.display = "none";
+      filterBar.style.display = "none";
+      filterBarDates.style.display = "none";
+      listEl.innerHTML = '<div class="empty-state"><div class="display">Henüz yorum yok</div><p>İlk değerlendirmeyi siz bırakın.</p></div>';
+      return;
+    }
+
+    let sum = 0;
+    items.forEach(it => { sum += it.ratings?.overall || 0; });
+    document.getElementById("avgOverall").textContent = (sum/items.length).toFixed(1);
+    document.getElementById("totalCount").textContent = items.length;
+    summaryBar.style.display = "flex";
+    filterBar.style.display = "flex";
+    filterBarDates.style.display = "flex";
+
+    applyFilters();
   }).catch(err => {
+    filterBar.style.display = "none";
+    filterBarDates.style.display = "none";
+    summaryBar.style.display = "none";
     listEl.innerHTML = '<div class="empty-state"><div class="display">Yorumlar yüklenemedi</div><p>Firebase bağlantısını kontrol edin.</p></div>';
     console.error(err);
   });
 }
 
+function applyFilters(){
+  const q = document.getElementById("filterSearch").value.trim().toLocaleLowerCase("tr-TR");
+  const minRating = parseInt(document.getElementById("filterRating").value, 10) || 0;
+  const fromVal = document.getElementById("filterDateFrom").value;
+  const toVal = document.getElementById("filterDateTo").value;
+  const fromTs = fromVal ? new Date(fromVal + "T00:00:00").getTime() : null;
+  const toTs = toVal ? new Date(toVal + "T23:59:59.999").getTime() : null;
+
+  const filtered = allReviews.filter(it => {
+    const rating = it.ratings?.overall || 0;
+    if(rating < minRating) return false;
+    if(fromTs !== null && (!it.timestamp || it.timestamp < fromTs)) return false;
+    if(toTs !== null && (!it.timestamp || it.timestamp > toTs)) return false;
+    if(!q) return true;
+    const haystack = [it.name, it.relation, it.comment].filter(Boolean).join(" ").toLocaleLowerCase("tr-TR");
+    return haystack.includes(q);
+  });
+
+  renderReviewList(filtered);
+}
+
+function clearDateFilter(){
+  document.getElementById("filterDateFrom").value = "";
+  document.getElementById("filterDateTo").value = "";
+  applyFilters();
+}
+
+document.getElementById("filterDateFrom").addEventListener("change", applyFilters);
+document.getElementById("filterDateTo").addEventListener("change", applyFilters);
+
+document.getElementById("filterSearch").addEventListener("input", applyFilters);
+document.getElementById("filterRating").addEventListener("change", applyFilters);
+
 function renderReviewList(items){
   const listEl = document.getElementById("reviewList");
-  const summaryBar = document.getElementById("summaryBar");
 
   if(items.length === 0){
-    summaryBar.style.display = "none";
-    listEl.innerHTML = '<div class="empty-state"><div class="display">Henüz yorum yok</div><p>İlk değerlendirmeyi siz bırakın.</p></div>';
+    listEl.innerHTML = '<div class="empty-state"><div class="display">Sonuç bulunamadı</div><p>Farklı bir arama veya filtre deneyin.</p></div>';
     return;
   }
-
-  let sum=0;
-  items.forEach(it => { sum += it.ratings?.overall || 0; });
-  document.getElementById("avgOverall").textContent = (sum/items.length).toFixed(1);
-  document.getElementById("totalCount").textContent = items.length;
-  summaryBar.style.display = "flex";
 
   listEl.innerHTML = items.map(it => {
     const date = it.timestamp ? new Date(it.timestamp).toLocaleDateString("tr-TR", {year:"numeric",month:"long",day:"numeric"}) : "";
