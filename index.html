@@ -569,6 +569,41 @@
     z-index:1001;
     cursor:default;
   }
+  #toastContainer{
+    position:fixed;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:2000;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:center;
+    width:100%;
+    max-width:460px;
+    padding:0 16px;
+    box-sizing:border-box;
+    pointer-events:none;
+  }
+  .toast{
+    background:var(--navy);
+    color:#fff;
+    padding:14px 18px;
+    border-radius:4px;
+    font-size:13.5px;
+    line-height:1.5;
+    text-align:center;
+    box-shadow:0 10px 28px rgba(0,0,0,.28);
+    opacity:0;
+    transform:translateY(-12px);
+    transition:opacity .25s ease, transform .25s ease;
+    pointer-events:auto;
+    width:100%;
+    box-sizing:border-box;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.err{background:var(--danger);}
+
   #adminGate{
     position:fixed;
     inset:0;
@@ -607,6 +642,20 @@
   .admin-approve-btn:hover{background:var(--navy-2);}
   .admin-approve-btn:disabled{background:var(--slate-light);cursor:not-allowed;}
   .admin-approve-btn.small{padding:5px 12px;font-size:11.5px;}
+  .admin-delete-btn{
+    background:none;
+    border:1px solid var(--danger);
+    color:var(--danger);
+    border-radius:2px;
+    padding:8px 16px;
+    font-size:12.5px;
+    font-weight:600;
+    margin-left:8px;
+  }
+  .admin-delete-btn:hover{background:var(--danger);color:#fff;}
+  .admin-delete-btn:disabled{opacity:.5;cursor:not-allowed;}
+  .admin-delete-btn.small{padding:5px 12px;font-size:11.5px;margin-left:6px;}
+  .admin-reply-actions{display:flex;flex-shrink:0;}
   .admin-badge{
     font-size:11.5px;
     font-weight:600;
@@ -796,6 +845,8 @@
 </style>
 </head>
 <body>
+
+<div id="toastContainer" aria-live="polite"></div>
 
 <button type="button" id="adminTrigger" onclick="openAdminGate()" aria-hidden="true" tabindex="-1"></button>
 
@@ -1210,6 +1261,19 @@ function formatCooldownRemaining(ms){
   return m + " dakika " + s + " saniye";
 }
 
+function showToast(message, isError){
+  const container = document.getElementById("toastContainer");
+  const el = document.createElement("div");
+  el.className = "toast" + (isError ? " err" : "");
+  el.textContent = message;
+  container.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => {
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 300);
+  }, 5000);
+}
+
 function submitReview(){
   const name = document.getElementById("f-name").value.trim();
   let relation = document.getElementById("f-relation").value;
@@ -1240,8 +1304,10 @@ function submitReview(){
 
   const cooldownLeft = getCooldownRemainingMs("barisakca_last_review_at", REVIEW_COOLDOWN_MS);
   if(cooldownLeft > 0){
-    statusEl.textContent = "Çok sık yorum gönderiyorsunuz. Lütfen " + formatCooldownRemaining(cooldownLeft) + " sonra tekrar deneyin.";
+    const cooldownMsg = "Çok sık yorum gönderiyorsunuz. Lütfen " + formatCooldownRemaining(cooldownLeft) + " sonra tekrar deneyin.";
+    statusEl.textContent = cooldownMsg;
     statusEl.className = "status-msg show err";
+    showToast(cooldownMsg, true);
     return;
   }
 
@@ -1266,6 +1332,7 @@ function submitReview(){
     markCooldownNow("barisakca_last_review_at");
     statusEl.textContent = "Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.";
     statusEl.className = "status-msg show ok";
+    showToast("Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.");
     document.getElementById("reviewForm").reset();
     document.getElementById("f-relation-other").style.display = "none";
     ratings.academic = ratings.personal = ratings.leadership = 0;
@@ -1277,10 +1344,12 @@ function submitReview(){
     btn.textContent = "Yorumu Gönder";
   }).catch(err => {
     const isRateLimit = err && err.code === "PERMISSION_DENIED";
-    statusEl.textContent = isRateLimit
+    const msg = isRateLimit
       ? "Çok sık yorum gönderiyorsunuz. Lütfen birkaç dakika sonra tekrar deneyin."
       : "Bir hata oluştu, lütfen tekrar deneyin.";
+    statusEl.textContent = msg;
     statusEl.className = "status-msg show err";
+    showToast(msg, true);
     btn.disabled = false;
     btn.textContent = "Yorumu Gönder";
     console.error(err);
@@ -1579,9 +1648,11 @@ function submitReplyForm(reviewId, parentId, btnEl){
 
   const cooldownLeft = getCooldownRemainingMs("barisakca_last_reply_at", REPLY_COOLDOWN_MS);
   if(cooldownLeft > 0){
-    statusEl.textContent = "Çok sık yorum gönderiyorsunuz. Lütfen " + formatCooldownRemaining(cooldownLeft) + " sonra tekrar deneyin.";
+    const cooldownMsg = "Çok sık yorum gönderiyorsunuz. Lütfen " + formatCooldownRemaining(cooldownLeft) + " sonra tekrar deneyin.";
+    statusEl.textContent = cooldownMsg;
     statusEl.className = "reply-status show err";
     statusEl.style.display = "block";
+    showToast(cooldownMsg, true);
     return;
   }
 
@@ -1619,15 +1690,18 @@ function submitReplyForm(reviewId, parentId, btnEl){
     statusEl.textContent = "Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.";
     statusEl.className = "reply-status show ok";
     statusEl.style.display = "block";
+    showToast("Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.");
     btnEl.disabled = false;
     btnEl.textContent = originalLabel;
   }).catch(err => {
     const isRateLimit = err && err.code === "PERMISSION_DENIED";
-    statusEl.textContent = isRateLimit
+    const msg = isRateLimit
       ? "Çok sık yorum gönderiyorsunuz. Lütfen birkaç dakika sonra tekrar deneyin."
       : "Bir hata oluştu, lütfen tekrar deneyin.";
+    statusEl.textContent = msg;
     statusEl.className = "reply-status show err";
     statusEl.style.display = "block";
+    showToast(msg, true);
     btnEl.disabled = false;
     btnEl.textContent = originalLabel;
     console.error(err);
@@ -1932,7 +2006,8 @@ function renderAdminReviewCard(it){
       <div class="admin-approve-row">
         ${isApproved
           ? '<span class="admin-badge ok">Onaylı</span>'
-          : `<button type="button" class="admin-approve-btn" onclick="approveReview('${it.id}', this)">Onayla</button>`
+          : `<button type="button" class="admin-approve-btn" onclick="approveReview('${it.id}', this)">Onayla</button>
+             <button type="button" class="admin-delete-btn" onclick="deleteReview('${it.id}', this)">Sil</button>`
         }
       </div>
       ${repliesHtml}
@@ -1955,7 +2030,10 @@ function renderAdminReplies(reviewId, repliesObj){
         </div>
         ${isApproved
           ? '<span class="admin-badge ok">Onaylı</span>'
-          : `<button type="button" class="admin-approve-btn small" onclick="approveReply('${reviewId}', '${r.id}', this)">Onayla</button>`
+          : `<div class="admin-reply-actions">
+               <button type="button" class="admin-approve-btn small" onclick="approveReply('${reviewId}', '${r.id}', this)">Onayla</button>
+               <button type="button" class="admin-delete-btn small" onclick="deleteReply('${reviewId}', '${r.id}', this)">Sil</button>
+             </div>`
         }
       </div>
     `;
@@ -1983,12 +2061,50 @@ function approveReply(reviewId, replyId, btnEl){
   btnEl.disabled = true;
   btnEl.textContent = "…";
   reviewsRef.child(reviewId).child("replies").child(replyId).update({ approved: true }).then(() => {
-    btnEl.outerHTML = '<span class="admin-badge ok">Onaylı</span>';
+    btnEl.closest(".admin-reply-actions").outerHTML = '<span class="admin-badge ok">Onaylı</span>';
     const review = allReviews.find(r => r.id === reviewId);
     if(review && review.replies && review.replies[replyId]) review.replies[replyId].approved = true;
   }).catch(err => {
     btnEl.disabled = false;
     btnEl.textContent = "Onayla";
+    console.error(err);
+  });
+}
+
+function deleteReview(reviewId, btnEl){
+  if(!dbReady) return;
+  if(!confirm("Bu onaysız yorumu kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.")) return;
+  btnEl.disabled = true;
+  btnEl.textContent = "Siliniyor…";
+  reviewsRef.child(reviewId).remove().then(() => {
+    const card = btnEl.closest(".admin-card");
+    if(card) card.remove();
+    allReviews = allReviews.filter(r => r.id !== reviewId);
+    showToast("Yorum silindi.");
+  }).catch(err => {
+    btnEl.disabled = false;
+    btnEl.textContent = "Sil";
+    showToast("Yorum silinemedi. Onaylı bir yorum silinemez, ya da bağlantı hatası oluştu.", true);
+    console.error(err);
+  });
+}
+
+function deleteReply(reviewId, replyId, btnEl){
+  if(!dbReady) return;
+  if(!confirm("Bu onaysız yanıtı kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.")) return;
+  const actionsWrap = btnEl.closest(".admin-reply-actions");
+  btnEl.disabled = true;
+  btnEl.textContent = "…";
+  reviewsRef.child(reviewId).child("replies").child(replyId).remove().then(() => {
+    const row = btnEl.closest(".admin-reply-row");
+    if(row) row.remove();
+    const review = allReviews.find(r => r.id === reviewId);
+    if(review && review.replies) delete review.replies[replyId];
+    showToast("Yanıt silindi.");
+  }).catch(err => {
+    btnEl.disabled = false;
+    btnEl.textContent = "Sil";
+    showToast("Yanıt silinemedi. Onaylı bir yanıt silinemez, ya da bağlantı hatası oluştu.", true);
     console.error(err);
   });
 }
