@@ -1032,6 +1032,38 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+(function(){
+  try{
+    emailjs.init({ publicKey: "ByBLYIFXWkrg1SLuP" });
+  }catch(e){
+    console.error("EmailJS başlatılamadı.", e);
+  }
+})();
+
+const EMAILJS_SERVICE_ID = "service_j8nkqj2";
+const EMAILJS_TEMPLATE_ID = "template_70zprot";
+
+// Yeni bir yorum/yanıt onay beklediğinde admin'e bildirim e-postası gönderir.
+// Bu tamamen "gönder ve unut" şeklinde çalışır — e-posta gönderilemese bile
+// ziyaretçinin yorum gönderme deneyimini etkilemez, sadece konsola hata yazar.
+function sendAdminNotification(kind, name, detailText){
+  if(typeof emailjs === "undefined") return;
+  const now = new Date().toLocaleString("tr-TR", { dateStyle:"medium", timeStyle:"short" });
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    name: name,
+    title: kind,
+    isim: name,
+    zaman: now,
+    mesaj: detailText,
+    email: ""
+  }).catch(err => {
+    console.error("EmailJS bildirimi gönderilemedi:", err);
+  });
+}
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -1330,6 +1362,11 @@ function submitReview(){
 
   firebase.database().ref().update(updates).then(() => {
     markCooldownNow("barisakca_last_review_at");
+    sendAdminNotification(
+      "Yeni yorum onay bekliyor",
+      name,
+      "Tür: Ana Yorum\nTanışma şekli: " + relation + "\nPuan: " + ratings.overall + "/5\nYorum: " + comment
+    );
     statusEl.textContent = "Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.";
     statusEl.className = "status-msg show ok";
     showToast("Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.");
@@ -1686,6 +1723,12 @@ function submitReplyForm(reviewId, parentId, btnEl){
     // Not inserted into the visible thread yet — pending admin approval.
 
     markCooldownNow("barisakca_last_reply_at");
+    const parentInfo = review ? (review.name + " isimli kişinin yorumuna") : "bir yoruma";
+    sendAdminNotification(
+      "Yeni yanıt onay bekliyor",
+      name,
+      "Tür: Yanıt\n" + parentInfo + " yazıldı.\nYanıt: " + comment
+    );
     commentInput.value = "";
     statusEl.textContent = "Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.";
     statusEl.className = "reply-status show ok";
