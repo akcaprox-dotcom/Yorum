@@ -212,7 +212,7 @@
     color:var(--slate-light);
     margin-top:6px;
   }
-  input[type=text], select, textarea{
+  input[type=text], input[type=password], select, textarea{
     width:100%;
     border:1px solid var(--line);
     background:var(--paper-2);
@@ -357,6 +357,34 @@
     .filter-bar-dates{flex-direction:column;align-items:stretch;}
   }
 
+  .list-toolbar{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:14px;
+  }
+  .pdf-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:9px 14px;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--navy);
+    transition:border-color .18s ease, transform .18s ease;
+  }
+  .pdf-btn:hover{border-color:var(--gold);transform:translateY(-1px);}
+  .pdf-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .pdf-btn svg{width:15px;height:15px;flex-shrink:0;}
+  .pdf-btn .arrow{transition:transform .18s ease;}
+  .pdf-btn.working .arrow{animation:pdf-bounce 0.9s ease-in-out infinite;}
+  @keyframes pdf-bounce{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(3px);}
+  }
+
   .review-card{
     background:var(--paper-2);
     border:1px solid var(--line);
@@ -391,6 +419,109 @@
     white-space:pre-wrap;
   }
 
+  /* ---- Reply threads (LinkedIn-style nested tree) ---- */
+  .replies-block{margin-top:16px;}
+  .replies-wrap{position:relative;}
+  .replies-wrap.has-items{padding-left:22px;margin-bottom:2px;}
+  .replies-wrap.has-items::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:18px;
+    width:1px;
+    background:var(--line);
+  }
+  .reply-node{
+    position:relative;
+    display:flex;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .reply-node::before{
+    content:"";
+    position:absolute;
+    left:-22px;
+    top:16px;
+    width:20px;
+    height:1px;
+    background:var(--line);
+  }
+  .reply-avatar{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:11px;
+    color:#fff;
+    flex-shrink:0;
+  }
+  .reply-body{flex:1;min-width:0;}
+  .reply-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .reply-name{font-size:12.5px;font-weight:600;color:var(--navy);}
+  .reply-date{font-size:10.5px;color:var(--slate-light);}
+  .reply-text{font-size:13px;line-height:1.5;color:var(--navy);white-space:pre-wrap;margin-top:2px;}
+  .compose-slot{margin-top:8px;}
+  .reply-toggle{
+    background:none;
+    border:none;
+    font-size:12px;
+    font-weight:600;
+    color:var(--slate);
+    padding:2px 0;
+  }
+  .reply-toggle:hover{color:var(--gold);}
+  .reply-form{
+    margin-top:6px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:12px;
+    background:var(--paper);
+  }
+  .reply-form input[type=text], .reply-form textarea{
+    width:100%;
+    box-sizing:border-box;
+    border:1px solid var(--line);
+    background:var(--paper-2);
+    border-radius:2px;
+    padding:8px 10px;
+    font-size:13px;
+    font-family:inherit;
+    color:var(--navy);
+    margin-bottom:8px;
+  }
+  .reply-form input[type=text]:focus, .reply-form textarea:focus{outline:none;border-color:var(--navy);}
+  .reply-form textarea{resize:vertical;min-height:56px;line-height:1.5;}
+  .reply-form-actions{display:flex;gap:8px;}
+  .reply-send-btn{
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:2px;
+    padding:7px 14px;
+    font-size:12.5px;
+    font-weight:600;
+  }
+  .reply-send-btn:hover{background:var(--navy-2);}
+  .reply-send-btn:disabled{background:var(--slate-light);cursor:not-allowed;}
+  .reply-cancel-btn{
+    background:none;
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:7px 14px;
+    font-size:12.5px;
+    color:var(--slate);
+  }
+  .reply-cancel-btn:hover{border-color:var(--navy);color:var(--navy);}
+  .reply-status{font-size:11.5px;margin-top:8px;display:none;}
+  .reply-status.show{display:block;}
+  .reply-status.ok{color:#3d5c30;}
+  .reply-status.err{color:var(--danger);}
+
   .empty-state{
     text-align:center;
     padding:60px 20px;
@@ -424,6 +555,79 @@
     padding:24px;
   }
   #captchaGate.show{display:flex;}
+
+  #adminTrigger{
+    position:fixed;
+    top:0;
+    right:0;
+    width:44px;
+    height:44px;
+    background:transparent;
+    border:none;
+    padding:0;
+    margin:0;
+    z-index:1001;
+    cursor:default;
+  }
+  #adminGate{
+    position:fixed;
+    inset:0;
+    background:var(--paper);
+    z-index:1000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  #adminGate.show{display:flex;}
+  #adminPasswordInput{
+    width:100%;
+    text-align:center;
+    letter-spacing:.2em;
+    font-weight:600;
+    margin-bottom:14px;
+  }
+
+  .admin-approve-row{
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:flex-end;
+  }
+  .admin-approve-btn{
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:2px;
+    padding:8px 16px;
+    font-size:12.5px;
+    font-weight:600;
+  }
+  .admin-approve-btn:hover{background:var(--navy-2);}
+  .admin-approve-btn:disabled{background:var(--slate-light);cursor:not-allowed;}
+  .admin-approve-btn.small{padding:5px 12px;font-size:11.5px;}
+  .admin-badge{
+    font-size:11.5px;
+    font-weight:600;
+    padding:5px 12px;
+    border-radius:2px;
+  }
+  .admin-badge.ok{background:#eef3ea;color:#3d5c30;}
+  .admin-replies-block{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);}
+  .admin-reply-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+    padding:10px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .admin-reply-row:last-child{border-bottom:none;}
+  .admin-reply-info .reply-name{margin-right:8px;}
+  .admin-reply-info .reply-date{font-size:10.5px;color:var(--slate-light);}
+  .admin-reply-info .reply-text{margin-top:4px;}
+
   .captcha-box{
     background:var(--paper-2);
     border:1px solid var(--line);
@@ -487,13 +691,130 @@
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important;}
   }
+
+  /* ---- PDF export (off-screen render source, mirrors referans PDF style) ---- */
+  #pdfExportRoot{
+    position:fixed;
+    left:-99999px;
+    top:0;
+    width:700px;
+    background:var(--paper);
+  }
+  .pdf-page-head{
+    width:700px;
+    box-sizing:border-box;
+    padding:36px 40px 24px;
+    background:var(--paper);
+  }
+  .pdf-page-head .eyebrow{
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .pdf-page-head h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:26px;
+    margin:0 0 10px;
+    color:var(--navy);
+  }
+  .pdf-page-head p{
+    font-size:12.5px;
+    line-height:1.6;
+    color:var(--slate);
+    margin:0;
+    max-width:560px;
+  }
+  .pdf-card{
+    width:700px;
+    box-sizing:border-box;
+    padding:26px 40px;
+    background:var(--paper);
+  }
+  .pdf-card .pdf-quote{
+    font-size:14px;
+    line-height:1.65;
+    color:var(--navy);
+    font-style:italic;
+    margin:0 0 18px;
+    padding-left:16px;
+    border-left:2px solid var(--gold-soft);
+    white-space:pre-wrap;
+  }
+  .pdf-card .pdf-foot{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+  }
+  .pdf-card .pdf-who{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .pdf-card .pdf-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:14px;
+    color:#fff;
+    flex-shrink:0;
+  }
+  .pdf-card .pdf-name{font-size:13.5px;font-weight:600;color:var(--navy);}
+  .pdf-card .pdf-relation{font-size:11.5px;color:var(--slate-light);margin-top:2px;}
+  .pdf-card .pdf-stars{font-size:15px;color:var(--gold);letter-spacing:2px;white-space:nowrap;}
+  .pdf-divider{
+    width:700px;
+    box-sizing:border-box;
+    padding:0 40px;
+    background:var(--paper);
+  }
+  .pdf-divider .line{border-top:1px solid var(--line);}
+  .pdf-page-foot{
+    width:700px;
+    box-sizing:border-box;
+    padding:18px 40px 30px;
+    background:var(--paper);
+    text-align:center;
+    font-size:10.5px;
+    color:var(--slate-light);
+  }
+  .pdf-replies{
+    width:700px;
+    box-sizing:border-box;
+    padding:0 40px 24px;
+    background:var(--paper);
+  }
 </style>
 </head>
 <body>
 
+<button type="button" id="adminTrigger" onclick="openAdminGate()" aria-hidden="true" tabindex="-1"></button>
+
 <div class="corner-nav" id="cornerNav">
   <a class="corner-btn glow-1" href="https://www.akcaprox.com" target="_blank" rel="noopener">Stratejik Yönetim Danışmanlığı</a>
   <a class="corner-btn glow-2" href="https://www.analizprox.com" target="_blank" rel="noopener">ProX Yedilisi "7" Analiz Uygulaması</a>
+</div>
+
+<div id="adminGate">
+  <div class="captcha-box">
+    <div class="back-row" style="margin-bottom:18px;">
+      <button class="back-btn" onclick="closeAdminGate()">← Kapat</button>
+    </div>
+    <div class="eyebrow">Yönetici Girişi</div>
+    <h2 class="display">Devam etmek için şifre girin</h2>
+    <input type="password" id="adminPasswordInput" placeholder="Şifre" autocomplete="off">
+    <button class="submit-btn" onclick="verifyAdminPassword()">Giriş</button>
+    <div class="captcha-error" id="adminError"></div>
+  </div>
 </div>
 
 <div id="captchaGate">
@@ -514,6 +835,7 @@
 </div>
 
 <div class="shell" id="mainShell">
+
 
   <div class="view active" id="view-landing">
     <header class="top">
@@ -604,6 +926,13 @@
       <div class="summary-item"><div class="val" id="totalCount">0</div><div class="lbl">Toplam Yorum</div></div>
     </div>
 
+    <div class="list-toolbar" id="pdfToolbar" style="display:none;">
+      <button type="button" class="pdf-btn" id="pdfBtn" onclick="exportReviewsPDF()">
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 19h14"/></svg>
+        <span id="pdfBtnLabel">PDF indir</span>
+      </button>
+    </div>
+
     <div class="filter-bar" id="filterBar" style="display:none;">
       <input type="text" id="filterSearch" placeholder="İsim, tanışma şekli veya yorum içinde ara...">
       <select id="filterRating" style="display:none;">
@@ -630,13 +959,34 @@
     <div id="reviewList"><div class="loading">Yükleniyor…</div></div>
   </div>
 
+  <div class="view" id="view-admin">
+    <div class="back-row">
+      <button class="back-btn" onclick="showView('landing')">← Ana sayfa</button>
+      <button type="button" class="back-btn" onclick="showView('landing')">Çıkış</button>
+    </div>
+
+    <header class="top" style="margin-bottom:24px;">
+      <div class="eyebrow">Yönetici Paneli</div>
+      <h1 class="display" style="font-size:26px;">Yorum Onayları</h1>
+      <p class="sub">Yeni gönderilen yorumlar ve yanıtlar, burada onaylanana kadar herkese açık sayfada görünmez.</p>
+    </header>
+
+    <div id="adminDebug" style="font-size:11.5px;color:var(--slate-light);margin-bottom:14px;"></div>
+    <div id="adminList"><div class="loading">Yükleniyor…</div></div>
+  </div>
+
 </div>
 
+<div id="pdfExportRoot" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
 let captchaAnswer = "";
+const _kA = "barisakca".length % 9; // used far below — not a captcha value
 let captchaVerified = false;
 
 function generateCaptcha(){
@@ -690,24 +1040,50 @@ function generateCaptcha(){
 function verifyCaptcha(){
   const val = document.getElementById("captchaInput").value.trim().toUpperCase();
   if(val === captchaAnswer){
-    captchaVerified = true;
+    if(pendingCaptchaKind === "reply"){
+      replyCaptchaVerified = true;
+    } else {
+      captchaVerified = true;
+    }
     document.getElementById("captchaGate").classList.remove("show");
-    showView("form");
+    const action = pendingCaptchaAction || function(){ showView("form"); };
+    pendingCaptchaAction = null;
+    pendingCaptchaKind = null;
+    action();
   } else {
     document.getElementById("captchaError").textContent = "Kod hatalı, tekrar deneyin.";
     generateCaptcha();
   }
 }
 
-function requestFormAccess(){
+let pendingCaptchaAction = null;
+let pendingCaptchaKind = null;
+let replyCaptchaVerified = false;
+
+function requestFormAccess(onVerified){
+  const action = typeof onVerified === "function" ? onVerified : function(){ showView("form"); };
   if(captchaVerified){
-    showView("form");
+    action();
     return;
   }
+  pendingCaptchaAction = action;
+  pendingCaptchaKind = "form";
+  document.getElementById("captchaGate").classList.add("show");
+}
+
+function requestReplyAccess(onVerified){
+  if(replyCaptchaVerified){
+    onVerified();
+    return;
+  }
+  pendingCaptchaAction = onVerified;
+  pendingCaptchaKind = "reply";
   document.getElementById("captchaGate").classList.add("show");
 }
 
 function closeCaptchaGate(){
+  pendingCaptchaAction = null;
+  pendingCaptchaKind = null;
   document.getElementById("captchaGate").classList.remove("show");
 }
 
@@ -799,6 +1175,41 @@ commentBox.addEventListener("input", () => {
   wordCountEl.classList.toggle("over", words.length >= 500);
 });
 
+// ---- Spam / flood protection: per-browser cooldown + Firebase-side rate limit ----
+// Bu bölüm hem tarayıcı tarafında (localStorage) hem de Firebase Security Rules
+// ile sunucu tarafında aynı bekleme süresini uygular. Aşağıdaki iki değeri
+// dakika cinsinden değiştirerek bekleme sürelerini ayarlayabilirsin.
+const REVIEW_COOLDOWN_MINUTES = 10;
+const REPLY_COOLDOWN_MINUTES = 10;
+const REVIEW_COOLDOWN_MS = REVIEW_COOLDOWN_MINUTES * 60 * 1000;
+const REPLY_COOLDOWN_MS = REPLY_COOLDOWN_MINUTES * 60 * 1000;
+
+function getDeviceId(){
+  let id = localStorage.getItem("barisakca_device_id");
+  if(!id){
+    id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ("dev-" + Date.now() + "-" + Math.random().toString(36).slice(2));
+    localStorage.setItem("barisakca_device_id", id);
+  }
+  return id;
+}
+
+function getCooldownRemainingMs(storageKey, cooldownMs){
+  const last = parseInt(localStorage.getItem(storageKey) || "0", 10);
+  return Math.max(0, cooldownMs - (Date.now() - last));
+}
+
+function markCooldownNow(storageKey){
+  localStorage.setItem(storageKey, String(Date.now()));
+}
+
+function formatCooldownRemaining(ms){
+  const totalSec = Math.ceil(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  if(m <= 0) return s + " saniye";
+  return m + " dakika " + s + " saniye";
+}
+
 function submitReview(){
   const name = document.getElementById("f-name").value.trim();
   let relation = document.getElementById("f-relation").value;
@@ -827,17 +1238,33 @@ function submitReview(){
     return;
   }
 
+  const cooldownLeft = getCooldownRemainingMs("barisakca_last_review_at", REVIEW_COOLDOWN_MS);
+  if(cooldownLeft > 0){
+    statusEl.textContent = "Çok sık yorum gönderiyorsunuz. Lütfen " + formatCooldownRemaining(cooldownLeft) + " sonra tekrar deneyin.";
+    statusEl.className = "status-msg show err";
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = "Gönderiliyor…";
 
-  reviewsRef.push({
+  const deviceId = getDeviceId();
+  const newReviewRef = reviewsRef.push();
+  const updates = {};
+  updates["reviews/" + newReviewRef.key] = {
     name: name,
     relation: relation,
     ratings: { ...ratings },
     comment: comment,
+    approved: false,
+    deviceId: deviceId,
     timestamp: firebase.database.ServerValue.TIMESTAMP
-  }).then(() => {
-    statusEl.textContent = "Yorumunuz için teşekkürler. Başarıyla gönderildi.";
+  };
+  updates["rateLimits/" + deviceId + "/lastReviewAt"] = firebase.database.ServerValue.TIMESTAMP;
+
+  firebase.database().ref().update(updates).then(() => {
+    markCooldownNow("barisakca_last_review_at");
+    statusEl.textContent = "Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.";
     statusEl.className = "status-msg show ok";
     document.getElementById("reviewForm").reset();
     document.getElementById("f-relation-other").style.display = "none";
@@ -849,7 +1276,10 @@ function submitReview(){
     btn.disabled = false;
     btn.textContent = "Yorumu Gönder";
   }).catch(err => {
-    statusEl.textContent = "Bir hata oluştu, lütfen tekrar deneyin.";
+    const isRateLimit = err && err.code === "PERMISSION_DENIED";
+    statusEl.textContent = isRateLimit
+      ? "Çok sık yorum gönderiyorsunuz. Lütfen birkaç dakika sonra tekrar deneyin."
+      : "Bir hata oluştu, lütfen tekrar deneyin.";
     statusEl.className = "status-msg show err";
     btn.disabled = false;
     btn.textContent = "Yorumu Gönder";
@@ -859,23 +1289,29 @@ function submitReview(){
 
 let reviewsLoaded = false;
 let allReviews = [];
+let currentFilteredReviews = [];
+
+const _kE = "ai".length - 1;
 
 function loadReviews(){
   const listEl = document.getElementById("reviewList");
   const filterBar = document.getElementById("filterBar");
   const filterBarDates = document.getElementById("filterBarDates");
   const summaryBar = document.getElementById("summaryBar");
+  const pdfToolbar = document.getElementById("pdfToolbar");
 
   if(!dbReady){
     filterBar.style.display = "none";
     filterBarDates.style.display = "none";
     summaryBar.style.display = "none";
+    pdfToolbar.style.display = "none";
     listEl.innerHTML = '<div class="empty-state"><div class="display">Veritabanı bağlı değil</div><p>firebaseConfig bilgilerini girip sayfayı tekrar yükleyin.</p></div>';
     return;
   }
 
   filterBar.style.display = "none";
   filterBarDates.style.display = "none";
+  pdfToolbar.style.display = "none";
   listEl.innerHTML = '<div class="loading">Yükleniyor…</div>';
 
   reviewsRef.orderByChild("timestamp").once("value").then(snapshot => {
@@ -886,27 +1322,32 @@ function loadReviews(){
     items.reverse();
     allReviews = items;
 
-    if(items.length === 0){
+    const approvedItems = items.filter(it => it.approved !== false);
+
+    if(approvedItems.length === 0){
       summaryBar.style.display = "none";
       filterBar.style.display = "none";
       filterBarDates.style.display = "none";
+      pdfToolbar.style.display = "none";
       listEl.innerHTML = '<div class="empty-state"><div class="display">Henüz yorum yok</div><p>İlk değerlendirmeyi siz bırakın.</p></div>';
       return;
     }
 
     let sum = 0;
-    items.forEach(it => { sum += it.ratings?.overall || 0; });
-    document.getElementById("avgOverall").textContent = (sum/items.length).toFixed(1);
-    document.getElementById("totalCount").textContent = items.length;
+    approvedItems.forEach(it => { sum += it.ratings?.overall || 0; });
+    document.getElementById("avgOverall").textContent = (sum/approvedItems.length).toFixed(1);
+    document.getElementById("totalCount").textContent = approvedItems.length;
     summaryBar.style.display = "flex";
     filterBar.style.display = "flex";
     filterBarDates.style.display = "flex";
+    pdfToolbar.style.display = "flex";
 
     applyFilters();
   }).catch(err => {
     filterBar.style.display = "none";
     filterBarDates.style.display = "none";
     summaryBar.style.display = "none";
+    pdfToolbar.style.display = "none";
     listEl.innerHTML = '<div class="empty-state"><div class="display">Yorumlar yüklenemedi</div><p>Firebase bağlantısını kontrol edin.</p></div>';
     console.error(err);
   });
@@ -921,6 +1362,7 @@ function applyFilters(){
   const toTs = toVal ? new Date(toVal + "T23:59:59.999").getTime() : null;
 
   const filtered = allReviews.filter(it => {
+    if(it.approved === false) return false; // pending admin approval — hidden from public view
     const rating = it.ratings?.overall || 0;
     if(rating < minRating) return false;
     if(fromTs !== null && (!it.timestamp || it.timestamp < fromTs)) return false;
@@ -930,6 +1372,7 @@ function applyFilters(){
     return haystack.includes(q);
   });
 
+  currentFilteredReviews = filtered;
   renderReviewList(filtered);
 }
 
@@ -968,6 +1411,7 @@ function renderReviewList(items){
           <span class="pillar-rating stars-mini" style="font-size:15px;">${starStr(it.ratings?.overall)}</span>
         </div>
         <div class="review-comment">${escapeHtml(it.comment)}</div>
+        ${renderRepliesSection(it.id, it.replies)}
       </div>
     `;
   }).join("");
@@ -982,6 +1426,571 @@ function escapeHtml(str){
   const div = document.createElement("div");
   div.textContent = str || "";
   return div.innerHTML;
+}
+
+const _kC = "az".indexOf("q") + 1;
+
+const AVATAR_COLORS = ["#b8862e","#3f7d6b","#5c6bc0","#b3543f","#152238","#8a6d3b"];
+
+/* ---- Reply threads (nested, LinkedIn-style) ---- */
+
+const _kB = "tur".length;
+
+function buildReplyChildren(repliesObj, parentKey){
+  const arr = [];
+  Object.keys(repliesObj || {}).forEach(key => {
+    const r = repliesObj[key];
+    if(r.approved === false) return; // pending admin approval — hidden from public/PDF views
+    const pid = r.parentId || null;
+    if(pid === parentKey){
+      arr.push({ id:key, ...r });
+    }
+  });
+  arr.sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+  return arr;
+}
+
+function replyToggleHtml(reviewId, parentId){
+  const pidAttr = parentId ? `'${parentId}'` : "null";
+  return `<button type="button" class="reply-toggle" onclick="openReplyBox('${reviewId}', ${pidAttr}, this)">+ Yorum ekle</button>`;
+}
+
+function replyFormHtml(reviewId, parentId){
+  const pidAttr = parentId ? `'${parentId}'` : "null";
+  return `
+    <div class="reply-form">
+      <input type="text" class="reply-name-input" placeholder="Ad Soyad" maxlength="60">
+      <textarea class="reply-comment-input" placeholder="Yorumunuzu yazın..." rows="2" maxlength="1000"></textarea>
+      <div class="reply-form-actions">
+        <button type="button" class="reply-send-btn" onclick="submitReplyForm('${reviewId}', ${pidAttr}, this)">Gönder</button>
+        <button type="button" class="reply-cancel-btn" onclick="closeReplyBox('${reviewId}', ${pidAttr})">Vazgeç</button>
+      </div>
+      <div class="reply-status"></div>
+    </div>
+  `;
+}
+
+function renderReplyNode(reviewId, node, repliesObj){
+  const date = node.timestamp ? new Date(node.timestamp).toLocaleDateString("tr-TR", {year:"numeric",month:"long",day:"numeric"}) : "";
+  const initials = initialsOf(node.name);
+  const color = colorFor(node.name);
+  const children = buildReplyChildren(repliesObj || {}, node.id);
+  const childrenHtml = children.map(c => renderReplyNode(reviewId, c, repliesObj)).join("");
+  const childWrapClass = children.length ? "replies-wrap has-items" : "replies-wrap";
+  return `
+    <div class="reply-node">
+      <div class="reply-avatar" style="background:${color};">${initials}</div>
+      <div class="reply-body">
+        <div class="reply-head"><span class="reply-name">${escapeHtml(node.name)}</span><span class="reply-date mono">${date}</span></div>
+        <div class="reply-text">${escapeHtml(node.comment)}</div>
+        <div class="${childWrapClass}" id="thread-${reviewId}-${node.id}">${childrenHtml}</div>
+        <div class="compose-slot" id="compose-${reviewId}-${node.id}">${replyToggleHtml(reviewId, node.id)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRepliesSection(reviewId, repliesObj){
+  const topLevel = buildReplyChildren(repliesObj || {}, null);
+  const nodesHtml = topLevel.map(n => renderReplyNode(reviewId, n, repliesObj)).join("");
+  const wrapClass = topLevel.length ? "replies-wrap has-items" : "replies-wrap";
+  return `
+    <div class="replies-block">
+      <div class="${wrapClass}" id="thread-${reviewId}-root">${nodesHtml}</div>
+      <div class="compose-slot" id="compose-${reviewId}-root">${replyToggleHtml(reviewId, null)}</div>
+    </div>
+  `;
+}
+
+/* ---- Read-only reply rendering for the PDF export (no reply/compose buttons) ---- */
+
+function renderReplyNodeForPdf(node, repliesObj){
+  const date = node.timestamp ? new Date(node.timestamp).toLocaleDateString("tr-TR", {year:"numeric",month:"long",day:"numeric"}) : "";
+  const initials = initialsOf(node.name);
+  const color = colorFor(node.name);
+  const children = buildReplyChildren(repliesObj || {}, node.id);
+  const childrenHtml = children.map(c => renderReplyNodeForPdf(c, repliesObj)).join("");
+  const childWrapClass = children.length ? "replies-wrap has-items" : "replies-wrap";
+  return `
+    <div class="reply-node">
+      <div class="reply-avatar" style="background:${color};">${initials}</div>
+      <div class="reply-body">
+        <div class="reply-head"><span class="reply-name">${escapeHtml(node.name)}</span><span class="reply-date mono">${date}</span></div>
+        <div class="reply-text">${escapeHtml(node.comment)}</div>
+        <div class="${childWrapClass}">${childrenHtml}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRepliesForPdf(repliesObj){
+  const topLevel = buildReplyChildren(repliesObj || {}, null);
+  if(!topLevel.length) return "";
+  const nodesHtml = topLevel.map(n => renderReplyNodeForPdf(n, repliesObj)).join("");
+  return `<div class="pdf-replies"><div class="replies-wrap has-items">${nodesHtml}</div></div>`;
+}
+
+function openReplyBox(reviewId, parentId, triggerEl){
+  requestReplyAccess(function(){
+    const slotId = "compose-" + reviewId + "-" + (parentId || "root");
+    const slot = document.getElementById(slotId);
+    if(!slot) return;
+    if(slot.querySelector(".reply-form")){
+      const ta = slot.querySelector(".reply-comment-input");
+      if(ta) ta.focus();
+      return;
+    }
+    slot.innerHTML = replyFormHtml(reviewId, parentId);
+    const ta = slot.querySelector(".reply-comment-input");
+    if(ta) ta.focus();
+  });
+}
+
+function closeReplyBox(reviewId, parentId){
+  const slotId = "compose-" + reviewId + "-" + (parentId || "root");
+  const slot = document.getElementById(slotId);
+  if(!slot) return;
+  slot.innerHTML = replyToggleHtml(reviewId, parentId);
+}
+
+function submitReplyForm(reviewId, parentId, btnEl){
+  const formEl = btnEl.closest(".reply-form");
+  const nameInput = formEl.querySelector(".reply-name-input");
+  const commentInput = formEl.querySelector(".reply-comment-input");
+  const statusEl = formEl.querySelector(".reply-status");
+  const name = nameInput.value.trim();
+  const comment = commentInput.value.trim();
+
+  statusEl.className = "reply-status";
+  statusEl.style.display = "none";
+
+  if(!name || !comment){
+    statusEl.textContent = "Lütfen ad soyad ve yorum alanlarını doldurun.";
+    statusEl.className = "reply-status show err";
+    statusEl.style.display = "block";
+    return;
+  }
+  if(!dbReady){
+    statusEl.textContent = "Veritabanı bağlantısı kurulamadı.";
+    statusEl.className = "reply-status show err";
+    statusEl.style.display = "block";
+    return;
+  }
+
+  const cooldownLeft = getCooldownRemainingMs("barisakca_last_reply_at", REPLY_COOLDOWN_MS);
+  if(cooldownLeft > 0){
+    statusEl.textContent = "Çok sık yorum gönderiyorsunuz. Lütfen " + formatCooldownRemaining(cooldownLeft) + " sonra tekrar deneyin.";
+    statusEl.className = "reply-status show err";
+    statusEl.style.display = "block";
+    return;
+  }
+
+  btnEl.disabled = true;
+  const originalLabel = btnEl.textContent;
+  btnEl.textContent = "Gönderiliyor…";
+
+  const deviceId = getDeviceId();
+  const newReplyRef = reviewsRef.child(reviewId).child("replies").push();
+  const updates = {};
+  updates["reviews/" + reviewId + "/replies/" + newReplyRef.key] = {
+    name: name,
+    comment: comment,
+    parentId: parentId || null,
+    approved: false,
+    deviceId: deviceId,
+    timestamp: firebase.database.ServerValue.TIMESTAMP
+  };
+  updates["rateLimits/" + deviceId + "/lastReplyAt"] = firebase.database.ServerValue.TIMESTAMP;
+
+  firebase.database().ref().update(updates).then(() => {
+    const key = newReplyRef.key;
+    const localTs = Date.now();
+
+    const review = allReviews.find(r => r.id === reviewId);
+    if(review){
+      if(!review.replies) review.replies = {};
+      review.replies[key] = { name:name, comment:comment, parentId: parentId || null, approved:false, timestamp: localTs };
+    }
+
+    // Not inserted into the visible thread yet — pending admin approval.
+
+    markCooldownNow("barisakca_last_reply_at");
+    commentInput.value = "";
+    statusEl.textContent = "Teşekkür ederim. Yorumunuz hemen görünmez, gerekli güvenlik kontrolleri sonucunda görünecektir.";
+    statusEl.className = "reply-status show ok";
+    statusEl.style.display = "block";
+    btnEl.disabled = false;
+    btnEl.textContent = originalLabel;
+  }).catch(err => {
+    const isRateLimit = err && err.code === "PERMISSION_DENIED";
+    statusEl.textContent = isRateLimit
+      ? "Çok sık yorum gönderiyorsunuz. Lütfen birkaç dakika sonra tekrar deneyin."
+      : "Bir hata oluştu, lütfen tekrar deneyin.";
+    statusEl.className = "reply-status show err";
+    statusEl.style.display = "block";
+    btnEl.disabled = false;
+    btnEl.textContent = originalLabel;
+    console.error(err);
+  });
+}
+
+
+function initialsOf(name){
+  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 0) return "?";
+  if(parts.length === 1) return parts[0].slice(0,2).toLocaleUpperCase("tr-TR");
+  return (parts[0][0] + parts[parts.length-1][0]).toLocaleUpperCase("tr-TR");
+}
+
+function colorFor(str){
+  str = str || "?";
+  let hash = 0;
+  for(let i=0;i<str.length;i++) hash = str.charCodeAt(i) + ((hash<<5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+const _kD = "haziran".length;
+
+async function exportReviewsPDF(){
+  const items = currentFilteredReviews.length ? currentFilteredReviews : allReviews;
+  if(!items.length){
+    alert("Dışa aktarılacak yorum bulunamadı.");
+    return;
+  }
+  if(typeof html2canvas === "undefined" || typeof window.jspdf === "undefined"){
+    alert("PDF oluşturucu yüklenemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.");
+    return;
+  }
+
+  const btn = document.getElementById("pdfBtn");
+  const label = document.getElementById("pdfBtnLabel");
+  btn.disabled = true;
+  btn.classList.add("working");
+  label.textContent = "Hazırlanıyor…";
+
+  const root = document.getElementById("pdfExportRoot");
+  root.innerHTML = "";
+
+  const pageWmm = 210, pageHmm = 297;
+  const marginTop = 14, marginBottom = 14;
+
+  try{
+    const head = document.createElement("div");
+    head.className = "pdf-page-head";
+    head.innerHTML = `
+      <div class="eyebrow">Referans ve Değerlendirme Yazıları</div>
+      <h1>Barış Akça</h1>
+      <p>www.barisakca.com.tr kişisel web sayfamda açtığım Yorum ve Değerlendirme alanına bırakılan değerlendirmeler beni hem mutlu etmiş hem de onure etmiştir. Kendilerine teşekkürlerimi ve saygılarımı sunuyorum.</p>
+    `;
+    root.appendChild(head);
+
+    const cardEls = [];
+    items.forEach(it => {
+      const card = document.createElement("div");
+      card.className = "pdf-card";
+      const date = it.timestamp ? new Date(it.timestamp).toLocaleDateString("tr-TR", {year:"numeric",month:"long",day:"numeric"}) : "";
+      const stars = starStr(it.ratings?.overall);
+      const initials = initialsOf(it.name);
+      const color = colorFor(it.name);
+      card.innerHTML = `
+        <p class="pdf-quote">${escapeHtml(it.comment)}</p>
+        <div class="pdf-foot">
+          <div class="pdf-who">
+            <div class="pdf-avatar" style="background:${color};">${initials}</div>
+            <div>
+              <div class="pdf-name">${escapeHtml(it.name)}</div>
+              <div class="pdf-relation">${escapeHtml(it.relation)}${date ? " · " + date : ""}</div>
+            </div>
+          </div>
+          <div class="pdf-stars">${stars}</div>
+        </div>
+      `;
+      root.appendChild(card);
+      cardEls.push(card);
+
+      const repliesHtml = renderRepliesForPdf(it.replies);
+      if(repliesHtml){
+        const repliesWrapper = document.createElement("div");
+        repliesWrapper.innerHTML = repliesHtml;
+        const repliesNode = repliesWrapper.firstElementChild;
+        root.appendChild(repliesNode);
+        cardEls.push(repliesNode);
+      }
+    });
+
+    const foot = document.createElement("div");
+    foot.className = "pdf-page-foot";
+    foot.textContent = "www.barisakca.com.tr";
+    root.appendChild(foot);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:"mm", format:"a4" });
+
+    function isRowBlank(ctx, canvasWidth, row, bg){
+      const data = ctx.getImageData(0, row, canvasWidth, 1).data;
+      for(let x = 0; x < data.length; x += 16){ // sample every 4th pixel for speed
+        if(Math.abs(data[x]-bg[0]) > 12 || Math.abs(data[x+1]-bg[1]) > 12 || Math.abs(data[x+2]-bg[2]) > 12){
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function findSafeCutRow(canvas, targetRow){
+      const bg = [242,243,240]; // matches --paper (#F2F3F0), same color used as html2canvas backgroundColor
+      const ctx = canvas.getContext("2d");
+      const maxSearch = Math.floor(canvas.width * 0.25);
+      const clampedTarget = Math.max(1, Math.min(targetRow, canvas.height - 1));
+      for(let offset = 0; offset <= maxSearch; offset++){
+        const row = clampedTarget - offset;
+        if(row > 0 && isRowBlank(ctx, canvas.width, row, bg)) return row;
+      }
+      for(let offset = 1; offset <= maxSearch; offset++){
+        const row = clampedTarget + offset;
+        if(row < canvas.height - 1 && isRowBlank(ctx, canvas.width, row, bg)) return row;
+      }
+      return clampedTarget; // no blank row found (very rare) — cut anyway rather than overflow the page
+    }
+
+    function sliceCanvas(source, fromRow, toRow){
+      const sliced = document.createElement("canvas");
+      sliced.width = source.width;
+      sliced.height = toRow - fromRow;
+      sliced.getContext("2d").drawImage(source, 0, fromRow, source.width, toRow - fromRow, 0, 0, source.width, toRow - fromRow);
+      return sliced;
+    }
+
+    // Places a (possibly multi-page-tall) canvas starting at cursorY, splitting only at
+    // blank rows so a line of text or a name/star footer is never cut mid-content.
+    // hasNext: if another element immediately follows this one, we avoid stranding this
+    // element alone with almost no room left for that next element to begin — instead we
+    // push this whole element down to the next page so a heading/title is never separated
+    // from the content that follows it.
+    const MIN_KEEP_WITH_NEXT_MM = 20;
+
+    function placeCanvasAcrossPages(canvas, cursorY, hasNext){
+      let remaining = canvas;
+      let isFirstChunk = true;
+      while(true){
+        const hmmFull = (remaining.height / remaining.width) * pageWmm;
+        const availableMm = (pageHmm - marginBottom) - cursorY;
+        const fullPageMm = pageHmm - marginTop - marginBottom;
+
+        if(hmmFull <= availableMm){
+          const leftoverAfter = availableMm - hmmFull;
+          const wouldStrand = isFirstChunk && hasNext && cursorY > marginTop && leftoverAfter < MIN_KEEP_WITH_NEXT_MM;
+          if(wouldStrand){
+            doc.addPage();
+            cursorY = marginTop;
+          }
+          doc.addImage(remaining.toDataURL("image/jpeg", 0.92), "JPEG", 0, cursorY, pageWmm, hmmFull);
+          return cursorY + hmmFull;
+        }
+
+        if(hmmFull <= fullPageMm){
+          doc.addPage();
+          cursorY = marginTop;
+          doc.addImage(remaining.toDataURL("image/jpeg", 0.92), "JPEG", 0, cursorY, pageWmm, hmmFull);
+          return cursorY + hmmFull;
+        }
+
+        // Doesn't fit even a fresh page — must split at a safe (blank) row.
+        if(availableMm < 20){ // too little room left to be worth starting a slice here
+          doc.addPage();
+          cursorY = marginTop;
+        }
+        const availableMmNow = (pageHmm - marginBottom) - cursorY;
+        const targetRowPx = Math.floor((availableMmNow / pageWmm) * remaining.width);
+        const cutRow = findSafeCutRow(remaining, targetRowPx);
+
+        const topPart = sliceCanvas(remaining, 0, cutRow);
+        const topHmm = (topPart.height / topPart.width) * pageWmm;
+        doc.addImage(topPart.toDataURL("image/jpeg", 0.92), "JPEG", 0, cursorY, pageWmm, topHmm);
+
+        remaining = sliceCanvas(remaining, cutRow, remaining.height);
+        doc.addPage();
+        cursorY = marginTop;
+        isFirstChunk = false;
+      }
+    }
+
+    async function renderToDoc(el, cursorY, hasNext){
+      const canvas = await html2canvas(el, { scale:2, backgroundColor:"#F2F3F0" });
+      return placeCanvasAcrossPages(canvas, cursorY, hasNext);
+    }
+
+    let cursorY = 0;
+    const sequence = [head, ...cardEls, foot];
+    for(let i = 0; i < sequence.length; i++){
+      const hasNext = i < sequence.length - 1;
+      cursorY = await renderToDoc(sequence[i], cursorY, hasNext);
+    }
+
+    doc.save("Baris_Akca_Referanslar.pdf");
+  } catch(err){
+    console.error(err);
+    alert("PDF oluşturulurken bir hata oluştu, lütfen tekrar deneyin.");
+  } finally {
+    root.innerHTML = "";
+    btn.disabled = false;
+    btn.classList.remove("working");
+    label.textContent = "PDF indir";
+  }
+}
+</script>
+
+<script>
+const _kF = "akca".length;
+
+function _resolveAdminCode(){
+  return "" + _kA + _kB + _kC + _kD + _kE + _kF;
+}
+
+function openAdminGate(){
+  document.getElementById("adminPasswordInput").value = "";
+  document.getElementById("adminError").textContent = "";
+  document.getElementById("adminGate").classList.add("show");
+}
+
+function closeAdminGate(){
+  document.getElementById("adminGate").classList.remove("show");
+}
+
+document.getElementById("adminPasswordInput").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){ e.preventDefault(); verifyAdminPassword(); }
+});
+
+function verifyAdminPassword(){
+  const val = document.getElementById("adminPasswordInput").value.trim();
+  if(val === _resolveAdminCode()){
+    document.getElementById("adminGate").classList.remove("show");
+    showView("admin");
+    loadAdminData();
+  } else {
+    document.getElementById("adminError").textContent = "Şifre hatalı.";
+  }
+}
+
+function loadAdminData(){
+  const listEl = document.getElementById("adminList");
+  const debugEl = document.getElementById("adminDebug");
+  if(!dbReady){
+    listEl.innerHTML = '<div class="empty-state"><div class="display">Veritabanı bağlı değil</div></div>';
+    return;
+  }
+  listEl.innerHTML = '<div class="loading">Yükleniyor…</div>';
+  debugEl.textContent = "Firebase'den okunuyor…";
+  reviewsRef.orderByChild("timestamp").once("value").then(snapshot => {
+    debugEl.textContent = "Firebase'den " + snapshot.numChildren() + " kayıt geldi.";
+    const items = [];
+    snapshot.forEach(child => {
+      items.push({ id: child.key, ...child.val() });
+    });
+    items.reverse();
+    allReviews = items;
+    renderAdminList(items);
+    debugEl.textContent += " Ekrana " + items.length + " kart basıldı.";
+  }).catch(err => {
+    listEl.innerHTML = '<div class="empty-state"><div class="display">Yorumlar yüklenemedi</div></div>';
+    debugEl.textContent = "HATA: " + (err && err.message ? err.message : String(err));
+    console.error(err);
+  });
+}
+
+function renderAdminList(items){
+  const listEl = document.getElementById("adminList");
+  if(!items.length){
+    listEl.innerHTML = '<div class="empty-state"><div class="display">Henüz yorum yok</div></div>';
+    return;
+  }
+  listEl.innerHTML = items.map(it => {
+    try {
+      return renderAdminReviewCard(it);
+    } catch(e) {
+      console.error("Kart render edilemedi:", it.id, e);
+      return '<div class="review-card admin-card"><div class="review-comment">⚠ Bu kayıt (' + escapeHtml(it.id || "?") + ') görüntülenirken hata oluştu: ' + escapeHtml(e.message) + '</div></div>';
+    }
+  }).join("");
+}
+
+function renderAdminReviewCard(it){
+  const date = it.timestamp ? new Date(it.timestamp).toLocaleDateString("tr-TR", {year:"numeric",month:"long",day:"numeric"}) : "";
+  const stars = starStr(it.ratings?.overall);
+  const isApproved = it.approved !== false;
+  const repliesHtml = renderAdminReplies(it.id, it.replies);
+  return `
+    <div class="review-card admin-card">
+      <div class="review-head">
+        <div class="who">
+          <div class="name">${escapeHtml(it.name)}</div>
+          <div class="relation">${escapeHtml(it.relation)}</div>
+        </div>
+        <div class="date mono">${date}</div>
+      </div>
+      <div class="pillar-ratings"><span class="pillar-rating stars-mini" style="font-size:15px;">${stars}</span></div>
+      <div class="review-comment">${escapeHtml(it.comment)}</div>
+      <div class="admin-approve-row">
+        ${isApproved
+          ? '<span class="admin-badge ok">Onaylı</span>'
+          : `<button type="button" class="admin-approve-btn" onclick="approveReview('${it.id}', this)">Onayla</button>`
+        }
+      </div>
+      ${repliesHtml}
+    </div>
+  `;
+}
+
+function renderAdminReplies(reviewId, repliesObj){
+  const all = Object.keys(repliesObj || {}).map(key => ({ id:key, ...repliesObj[key] }));
+  if(!all.length) return "";
+  all.sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+  const rowsHtml = all.map(r => {
+    const date = r.timestamp ? new Date(r.timestamp).toLocaleDateString("tr-TR", {year:"numeric",month:"long",day:"numeric"}) : "";
+    const isApproved = r.approved !== false;
+    return `
+      <div class="admin-reply-row">
+        <div class="admin-reply-info">
+          <span class="reply-name">${escapeHtml(r.name)}</span><span class="reply-date">${date}</span>
+          <div class="reply-text">${escapeHtml(r.comment)}</div>
+        </div>
+        ${isApproved
+          ? '<span class="admin-badge ok">Onaylı</span>'
+          : `<button type="button" class="admin-approve-btn small" onclick="approveReply('${reviewId}', '${r.id}', this)">Onayla</button>`
+        }
+      </div>
+    `;
+  }).join("");
+  return `<div class="admin-replies-block">${rowsHtml}</div>`;
+}
+
+function approveReview(reviewId, btnEl){
+  if(!dbReady) return;
+  btnEl.disabled = true;
+  btnEl.textContent = "Onaylanıyor…";
+  reviewsRef.child(reviewId).update({ approved: true }).then(() => {
+    btnEl.parentElement.innerHTML = '<span class="admin-badge ok">Onaylı</span>';
+    const review = allReviews.find(r => r.id === reviewId);
+    if(review) review.approved = true;
+  }).catch(err => {
+    btnEl.disabled = false;
+    btnEl.textContent = "Onayla";
+    console.error(err);
+  });
+}
+
+function approveReply(reviewId, replyId, btnEl){
+  if(!dbReady) return;
+  btnEl.disabled = true;
+  btnEl.textContent = "…";
+  reviewsRef.child(reviewId).child("replies").child(replyId).update({ approved: true }).then(() => {
+    btnEl.outerHTML = '<span class="admin-badge ok">Onaylı</span>';
+    const review = allReviews.find(r => r.id === reviewId);
+    if(review && review.replies && review.replies[replyId]) review.replies[replyId].approved = true;
+  }).catch(err => {
+    btnEl.disabled = false;
+    btnEl.textContent = "Onayla";
+    console.error(err);
+  });
 }
 </script>
 </body>
