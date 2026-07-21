@@ -1050,7 +1050,11 @@ const EMAILJS_TEMPLATE_ID = "template_70zprot";
 // Bu tamamen "gönder ve unut" şeklinde çalışır — e-posta gönderilemese bile
 // ziyaretçinin yorum gönderme deneyimini etkilemez, sadece konsola hata yazar.
 function sendAdminNotification(kind, name, detailText){
-  if(typeof emailjs === "undefined") return;
+  if(typeof emailjs === "undefined"){
+    console.error("EmailJS kütüphanesi yüklenemedi (emailjs tanımsız).");
+    showToast("Yönetici bildirimi gönderilemedi: EmailJS yüklenemedi.", true);
+    return;
+  }
   const now = new Date().toLocaleString("tr-TR", { dateStyle:"medium", timeStyle:"short" });
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
     name: name,
@@ -1059,8 +1063,12 @@ function sendAdminNotification(kind, name, detailText){
     zaman: now,
     mesaj: detailText,
     email: ""
+  }).then(() => {
+    console.log("EmailJS bildirimi gönderildi.");
   }).catch(err => {
     console.error("EmailJS bildirimi gönderilemedi:", err);
+    const detail = (err && (err.text || err.message)) ? (err.text || err.message) : "bilinmeyen hata";
+    showToast("Yönetici bildirimi gönderilemedi: " + detail, true);
   });
 }
 </script>
